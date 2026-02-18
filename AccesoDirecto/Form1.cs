@@ -1,4 +1,6 @@
 using System.Text;
+using System.Text.Json;
+using System.Xml.Linq;
 
 namespace AccesoDirecto
 {
@@ -10,6 +12,7 @@ namespace AccesoDirecto
         public Form1()
         {
             InitializeComponent();
+            ActualizarLista();
         }
 
         private void btnCrear_Click(object sender, EventArgs e)
@@ -33,6 +36,7 @@ namespace AccesoDirecto
                 EscribirRegistro(id, nombre, apellido, edad);
                 MessageBox.Show("Registro creado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LimpiarCampos();
+                ActualizarLista();
             }
             catch (Exception ex)
             {
@@ -59,6 +63,7 @@ namespace AccesoDirecto
                     txtApellido.Text = registro.Apellido;
                     txtEdad.Text = registro.Edad.ToString();
                     MessageBox.Show("Registro encontrado.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ActualizarLista();
                 }
                 else
                 {
@@ -91,6 +96,7 @@ namespace AccesoDirecto
 
                 EscribirRegistro(id, nombre, apellido, edad);
                 MessageBox.Show("Registro actualizado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ActualizarLista();
             }
             catch (Exception ex)
             {
@@ -98,7 +104,7 @@ namespace AccesoDirecto
             }
         }
 
-        private void btnBuscar_Click(object sender, EventArgs e)
+        private void ActualizarLista()
         {
             try
             {
@@ -106,7 +112,6 @@ namespace AccesoDirecto
 
                 if (!File.Exists(ArchivoNombre))
                 {
-                    MessageBox.Show("No hay registros para mostrar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
@@ -114,7 +119,6 @@ namespace AccesoDirecto
                 using BinaryReader reader = new BinaryReader(fs);
 
                 int numeroRegistros = (int)(fs.Length / TamañoRegistro);
-                bool hayRegistros = false;
 
                 for (int i = 0; i < numeroRegistros; i++)
                 {
@@ -131,18 +135,12 @@ namespace AccesoDirecto
                         string apellido = Encoding.UTF8.GetString(apellidoBytes).TrimEnd('\0');
 
                         lstResultados.Items.Add($"ID: {id}, Nombre: {nombre}, Apellido: {apellido}, Edad: {edad}");
-                        hayRegistros = true;
                     }
-                }
-
-                if (!hayRegistros)
-                {
-                    MessageBox.Show("No hay registros para mostrar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al buscar registros: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al actualizar lista: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -167,6 +165,7 @@ namespace AccesoDirecto
                 EliminarRegistro(id);
                 MessageBox.Show("Registro eliminado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LimpiarCampos();
+                ActualizarLista();
             }
             catch (Exception ex)
             {
@@ -177,6 +176,155 @@ namespace AccesoDirecto
         private void btnLimpiar_Click(object sender, EventArgs e)
         {
             LimpiarCampos();
+        }
+
+        private void btnGuardar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using SaveFileDialog saveDialog = new SaveFileDialog
+                {
+                    Filter = "Archivo de texto (*.txt)|*.txt|Archivo CSV (*.csv)|*.csv|Archivo JSON (*.json)|*.json|Archivo XML (*.xml)|*.xml",
+                    FilterIndex = 1,
+                    Title = "Guardar archivo de registros"
+                };
+
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string extension = Path.GetExtension(saveDialog.FileName).ToLower();
+                    var registros = ObtenerTodosLosRegistros();
+
+                    switch (extension)
+                    {
+                        case ".txt":
+                            GuardarComoTxt(saveDialog.FileName, registros);
+                            break;
+                        case ".csv":
+                            GuardarComoCsv(saveDialog.FileName, registros);
+                            break;
+                        case ".json":
+                            GuardarComoJson(saveDialog.FileName, registros);
+                            break;
+                        case ".xml":
+                            GuardarComoXml(saveDialog.FileName, registros);
+                            break;
+                        default:
+                            MessageBox.Show("Formato de archivo no soportado.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                    }
+
+                    MessageBox.Show($"Archivo guardado exitosamente en:\n{saveDialog.FileName}", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar archivo: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void GuardarComoTxt(string ruta, List<Registro> registros)
+        {
+            var lineas = new List<string>
+            {
+                "=== REGISTROS DE ACCESO DIRECTO ===",
+                $"Fecha de exportación: {DateTime.Now}",
+                $"Total de registros: {registros.Count}",
+                new string('=', 50),
+                ""
+            };
+
+            foreach (var registro in registros)
+            {
+                lineas.Add($"ID: {registro.Id}");
+                lineas.Add($"Nombre: {registro.Nombre}");
+                lineas.Add($"Apellido: {registro.Apellido}");
+                lineas.Add($"Edad: {registro.Edad}");
+                lineas.Add(new string('-', 50));
+            }
+
+            File.WriteAllLines(ruta, lineas);
+        }
+
+        private void GuardarComoCsv(string ruta, List<Registro> registros)
+        {
+            var lineas = new List<string>
+            {
+                "ID,Nombre,Apellido,Edad"
+            };
+
+            foreach (var registro in registros)
+            {
+                lineas.Add($"{registro.Id},{registro.Nombre},{registro.Apellido},{registro.Edad}");
+            }
+
+            File.WriteAllLines(ruta, lineas, Encoding.UTF8);
+        }
+
+        private void GuardarComoJson(string ruta, List<Registro> registros)
+        {
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+
+            string json = JsonSerializer.Serialize(registros, options);
+            File.WriteAllText(ruta, json, Encoding.UTF8);
+        }
+
+        private void GuardarComoXml(string ruta, List<Registro> registros)
+        {
+            XDocument xml = new XDocument(
+                new XDeclaration("1.0", "utf-8", "yes"),
+                new XElement("Registros",
+                    registros.Select(r =>
+                        new XElement("Registro",
+                            new XElement("Id", r.Id),
+                            new XElement("Nombre", r.Nombre),
+                            new XElement("Apellido", r.Apellido),
+                            new XElement("Edad", r.Edad)
+                        )
+                    )
+                )
+            );
+
+            xml.Save(ruta);
+        }
+
+        private List<Registro> ObtenerTodosLosRegistros()
+        {
+            var registros = new List<Registro>();
+
+            if (!File.Exists(ArchivoNombre))
+                return registros;
+
+            using FileStream fs = new FileStream(ArchivoNombre, FileMode.Open, FileAccess.Read);
+            using BinaryReader reader = new BinaryReader(fs);
+
+            int numeroRegistros = (int)(fs.Length / TamañoRegistro);
+
+            for (int i = 0; i < numeroRegistros; i++)
+            {
+                fs.Seek(i * TamañoRegistro, SeekOrigin.Begin);
+
+                int id = reader.ReadInt32();
+                byte[] nombreBytes = reader.ReadBytes(50);
+                byte[] apellidoBytes = reader.ReadBytes(50);
+                int edad = reader.ReadInt32();
+
+                if (id != 0)
+                {
+                    registros.Add(new Registro
+                    {
+                        Id = id,
+                        Nombre = Encoding.UTF8.GetString(nombreBytes).TrimEnd('\0'),
+                        Apellido = Encoding.UTF8.GetString(apellidoBytes).TrimEnd('\0'),
+                        Edad = edad
+                    });
+                }
+            }
+
+            return registros;
         }
 
         private bool ValidarCampos()

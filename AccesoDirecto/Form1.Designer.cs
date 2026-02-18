@@ -35,7 +35,6 @@
             btnCrear = new Button();
             btnLeer = new Button();
             btnActualizar = new Button();
-            btnBuscar = new Button();
             lblId = new Label();
             lblNombre = new Label();
             lblApellido = new Label();
@@ -44,13 +43,14 @@
             lblResultados = new Label();
             btnEliminar = new Button();
             btnLimpiar = new Button();
+            btnGuardar = new Button();
             SuspendLayout();
             // 
             // txtId
             // 
             txtId.Location = new Point(120, 20);
             txtId.Name = "txtId";
-            txtId.Size = new Size(200, 27);
+            txtId.Size = new Size(200, 23);
             txtId.TabIndex = 0;
             // 
             // txtNombre
@@ -58,7 +58,7 @@
             txtNombre.Location = new Point(120, 60);
             txtNombre.MaxLength = 50;
             txtNombre.Name = "txtNombre";
-            txtNombre.Size = new Size(200, 27);
+            txtNombre.Size = new Size(200, 23);
             txtNombre.TabIndex = 1;
             // 
             // txtApellido
@@ -66,14 +66,14 @@
             txtApellido.Location = new Point(120, 100);
             txtApellido.MaxLength = 50;
             txtApellido.Name = "txtApellido";
-            txtApellido.Size = new Size(200, 27);
+            txtApellido.Size = new Size(200, 23);
             txtApellido.TabIndex = 2;
             // 
             // txtEdad
             // 
             txtEdad.Location = new Point(120, 140);
             txtEdad.Name = "txtEdad";
-            txtEdad.Size = new Size(200, 27);
+            txtEdad.Size = new Size(200, 23);
             txtEdad.TabIndex = 3;
             // 
             // btnCrear
@@ -106,22 +106,12 @@
             btnActualizar.UseVisualStyleBackColor = true;
             btnActualizar.Click += btnActualizar_Click;
             // 
-            // btnBuscar
-            // 
-            btnBuscar.Location = new Point(440, 190);
-            btnBuscar.Name = "btnBuscar";
-            btnBuscar.Size = new Size(120, 40);
-            btnBuscar.TabIndex = 7;
-            btnBuscar.Text = "Buscar Todos";
-            btnBuscar.UseVisualStyleBackColor = true;
-            btnBuscar.Click += btnBuscar_Click;
-            // 
             // lblId
             // 
             lblId.AutoSize = true;
             lblId.Location = new Point(20, 23);
             lblId.Name = "lblId";
-            lblId.Size = new Size(27, 20);
+            lblId.Size = new Size(21, 15);
             lblId.TabIndex = 8;
             lblId.Text = "ID:";
             // 
@@ -130,7 +120,7 @@
             lblNombre.AutoSize = true;
             lblNombre.Location = new Point(20, 63);
             lblNombre.Name = "lblNombre";
-            lblNombre.Size = new Size(67, 20);
+            lblNombre.Size = new Size(54, 15);
             lblNombre.TabIndex = 9;
             lblNombre.Text = "Nombre:";
             // 
@@ -139,7 +129,7 @@
             lblApellido.AutoSize = true;
             lblApellido.Location = new Point(20, 103);
             lblApellido.Name = "lblApellido";
-            lblApellido.Size = new Size(69, 20);
+            lblApellido.Size = new Size(54, 15);
             lblApellido.TabIndex = 10;
             lblApellido.Text = "Apellido:";
             // 
@@ -148,31 +138,30 @@
             lblEdad.AutoSize = true;
             lblEdad.Location = new Point(20, 143);
             lblEdad.Name = "lblEdad";
-            lblEdad.Size = new Size(46, 20);
+            lblEdad.Size = new Size(36, 15);
             lblEdad.TabIndex = 11;
             lblEdad.Text = "Edad:";
             // 
             // lstResultados
             // 
             lstResultados.FormattingEnabled = true;
-            lstResultados.ItemHeight = 20;
-            lstResultados.Location = new Point(20, 280);
+            lstResultados.Location = new Point(20, 295);
             lstResultados.Name = "lstResultados";
-            lstResultados.Size = new Size(760, 144);
+            lstResultados.Size = new Size(760, 124);
             lstResultados.TabIndex = 12;
             // 
             // lblResultados
             // 
             lblResultados.AutoSize = true;
-            lblResultados.Location = new Point(20, 250);
+            lblResultados.Location = new Point(20, 275);
             lblResultados.Name = "lblResultados";
-            lblResultados.Size = new Size(84, 20);
+            lblResultados.Size = new Size(67, 15);
             lblResultados.TabIndex = 13;
             lblResultados.Text = "Resultados:";
             // 
             // btnEliminar
             // 
-            btnEliminar.Location = new Point(580, 190);
+            btnEliminar.Location = new Point(445, 190);
             btnEliminar.Name = "btnEliminar";
             btnEliminar.Size = new Size(120, 40);
             btnEliminar.TabIndex = 14;
@@ -190,8 +179,22 @@
             btnLimpiar.UseVisualStyleBackColor = true;
             btnLimpiar.Click += btnLimpiar_Click;
             // 
+            // btnGuardar
+            // 
+            btnGuardar.Location = new Point(350, 63);
+            btnGuardar.Name = "btnGuardar";
+            btnGuardar.Size = new Size(100, 38);
+            btnGuardar.TabIndex = 16;
+            btnGuardar.Text = "Guardar";
+            btnGuardar.UseVisualStyleBackColor = true;
+            btnGuardar.Click += btnGuardar_Click;
+            // 
+            // Form1
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(btnGuardar);
             Controls.Add(btnLimpiar);
             Controls.Add(btnEliminar);
             Controls.Add(lblResultados);
@@ -200,7 +203,6 @@
             Controls.Add(lblApellido);
             Controls.Add(lblNombre);
             Controls.Add(lblId);
-            Controls.Add(btnBuscar);
             Controls.Add(btnActualizar);
             Controls.Add(btnLeer);
             Controls.Add(btnCrear);
@@ -223,7 +225,6 @@
         private Button btnCrear;
         private Button btnLeer;
         private Button btnActualizar;
-        private Button btnBuscar;
         private Label lblId;
         private Label lblNombre;
         private Label lblApellido;
@@ -232,5 +233,6 @@
         private Label lblResultados;
         private Button btnEliminar;
         private Button btnLimpiar;
+        private Button btnGuardar;
     }
 }
